@@ -305,7 +305,21 @@
                 messageBox.style.display = 'none';
             }, 5000);
         }
-
+        const config = {
+            apiUrl: location.hostname === 'localhost' 
+                ? 'http://localhost:3001' 
+                : 'https://cloudzooproductissuer.onrender.com'  
+        };
+        async function fetchApiApi(endpoint, options = {}) {
+            const url = `${config.apiUrl}${endpoint}`;
+            const response = await fetchApi(url, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+        }
         // Create product form submission
         document.getElementById('createForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -329,7 +343,7 @@
             };
 
             try {
-                const response = await fetch('/api/v1/product', {
+                const response = await fetchApi('/api/v1/product', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -359,7 +373,7 @@
             }
 
             try {
-                const response = await fetch(`/api/v1/product/${searchId}`);
+                const response = await fetchApi(`/api/v1/product/${searchId}`);
                 const data = await response.json();
 
                 if (response.ok) {
@@ -390,7 +404,7 @@
             };
 
             try {
-                const response = await fetch(`/api/v1/product/${productId}`, {
+                const response = await fetchApi(`/api/v1/product/${productId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -418,7 +432,7 @@
             if (!confirm('Are you sure you want to delete this product?')) return;
 
             try {
-                const response = await fetch(`/api/v1/product/${productId}`, {
+                const response = await fetchApi(`/api/v1/product/${productId}`, {
                     method: 'DELETE'
                 });
 
@@ -435,10 +449,10 @@
             }
         });
 
-        // Function to fetch and display all products
+        // Function to fetchA and display all products
         async function loadProducts() {
             try {
-                const response = await fetch('/api/v1/products');
+                const response = await fetchApi('/api/v1/products');
                 const data = await response.json();
 
                 if (response.ok) {
