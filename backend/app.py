@@ -107,8 +107,10 @@ class CloudZooClient:
         self.base_url = Config.BASE_URL
 
     def create_auth_header(self, issuer_id: str, issuer_secret: str):
-        BASE64ENCODEDSTRING = base64.encode(issuer_id + ":" + issuer_secret)
-        return {'Authorization': f"Basic {BASE64ENCODEDSTRING}"}
+        auth_string = f"{issuer_id}:{issuer_secret}"
+        base64_encoded = base64.b64encode(auth_string.encode('utf-8')).decode('utf-8')
+        return {'Authorization': f"Basic {base64_encoded}"}
+
 
     def _handle_response(self, response: requests.Response) -> Dict:
         """Handle API response and raise appropriate exceptions."""
