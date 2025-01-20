@@ -216,7 +216,7 @@ def get_product(product_id:str):
     return jsonify({"data":res, "status": "Product fetched successfully"})   
 
 if __name__ == "__main__": 
-    app.run(debug=Config.DEBUG, port=Config.PORT)
+    app.run(debug=Config.DEBUG, port=Config.PORT, host='0.0.0.0')
 
 
 
