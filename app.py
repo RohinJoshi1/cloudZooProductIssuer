@@ -6,12 +6,20 @@ from typing import Dict, List, Optional,Any
 from dataclasses import dataclass, asdict
 from uuid import UUID
 from functools import wraps
+from flask_cors import CORS
 import os 
+from config import Config
+
 import dotenv 
 dotenv.load_dotenv(dotenv.find_dotenv()) 
 app = Flask(__name__) 
-ISSUER_ID = os.getenv("ISSUER_ID") or ""
-ISSUER_SECRET = os.getenv("ISSUER_SECRET") or ""
+CORS(app, resources={
+    r"/api/*": {
+        "origins": Config.CORS_ORIGINS,
+        "methods": ["GET", "POST", "PUT", "DELETE"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 '''
 Example Body: 
@@ -92,10 +100,12 @@ class Product:
         }
 
 class CloudZooClient: 
-    BASE_URL = "https://cloudzoo.rhino3d.com/v1"
+    # BASE_URL = "https://cloudzoo.rhino3d.com/v1"
 
     def __init__(self, issuer_id: str, issuer_secret: str):
         self.auth_header = self.create_auth_header(issuer_id, issuer_secret)
+        self.base_url = Config.BASE_URL
+
     def create_auth_header(self, issuer_id: str, issuer_secret: str):
         BASE64ENCODEDSTRING = base64.encode(issuer_id + ":" + issuer_secret)
         return {'Authorization': f"Basic {BASE64ENCODEDSTRING}"}
@@ -145,7 +155,8 @@ class CloudZooClient:
         response = requests.get(url, headers=self.auth_header)
         return self._handle_response(response)
     
-cz = CloudZooClient(issuer_id="",issuer_secret="")
+cz = CloudZooClient(issuer_id=Config.ISSUER_ID, issuer_secret=Config.ISSUER_SECRET)
+
 def handle_error(f): 
     """Handle errors decorator."""
     @wraps(f)
@@ -203,6 +214,7 @@ def get_product(product_id:str):
     return jsonify({"data":res, "status": "Product fetched successfully"})   
 
 if __name__ == "__main__": 
-    app.run(debug=True, port = 3001)
+    app.run(debug=Config.DEBUG, port=Config.PORT)
+
 
 
