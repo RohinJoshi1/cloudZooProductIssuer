@@ -159,6 +159,35 @@ class CloudZooClient:
     
 cz = CloudZooClient(issuer_id=Config.ISSUER_ID, issuer_secret=Config.ISSUER_SECRET)
 
+########################################### AUTHENTICATION CODE ########################################################
+
+
+def check_auth(issuer_id, secret):
+    """This function is called to check if a issuer_id /
+    secret combination is valid.
+    """
+    return issuer_id == Config.ISSUER_ID and secret == Config.ISSUER_SECRET
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return (
+        jsonify({"description": "Incorrect Credentials"}),
+        401,
+        {'WWW-Authenticate': 'Basic realm="Credentials Required"'})
+
+def requires_auth(f):
+    """A convenience decorator that makes it simple to enforce authentication on enddpoints."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+
+##################################################### ENDPOINTS ########################################################
+
 def handle_error(f): 
     """Handle errors decorator."""
     @wraps(f)
@@ -175,6 +204,7 @@ def handle_error(f):
 
 @app.route('/api/v1/product', methods=['POST'])
 @handle_error 
+@requires_auth
 def create_product(): 
     body = request.get_json() 
     try: 
@@ -191,6 +221,7 @@ def create_product():
 
 @app.route('/api/v1/product/<product_id>',methods=['PUT'])
 @handle_error 
+@requires_auth
 def update_product(product_id:str): 
     """Update product."""
     try: 
@@ -205,6 +236,7 @@ def update_product(product_id:str):
 
 @app.route('/api/v1/product/<product_id>', methods=['GET'])
 @handle_error 
+@requires_auth
 def get_product(product_id:str): 
     try: 
         product_id = UUID(product_id.lower())
