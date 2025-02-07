@@ -104,7 +104,7 @@ class CloudZooClient:
 
     def __init__(self, issuer_id: str, issuer_secret: str):
         self.auth_header = self.create_auth_header(issuer_id, issuer_secret)
-        self.base_url = Config.BASE_URL
+        self.BASE_URL = Config.BASE_URL
 
     def create_auth_header(self, issuer_id: str, issuer_secret: str):
         auth_string = f"{issuer_id}:{issuer_secret}"
