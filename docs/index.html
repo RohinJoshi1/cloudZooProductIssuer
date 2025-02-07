@@ -310,7 +310,7 @@
                 ? 'http://localhost:3001' 
                 : 'https://cloudzooproductissuer.onrender.com'  
         };
-        async function fetchApiApi(endpoint, options = {}) {
+        async function fetchApi(endpoint, options = {}) {
             const url = `${config.apiUrl}${endpoint}`;
             const response = await fetchApi(url, {
                 ...options,
